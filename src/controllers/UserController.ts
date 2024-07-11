@@ -1,0 +1,44 @@
+import { Request, Response } from "express";
+import db from "../models/database";
+import { comparePassword, generateToken, hashPassword } from "../utils/auth";
+
+export async function registerUser(req: Request, res: Response) {
+  const { username, password } = req.body;
+  try {
+    const hashedPassword = await hashPassword(password);
+    await db.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
+      username,
+      hashedPassword,
+    ]);
+    res.status(201).json({ message: "User successfully registered" });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Error occured on user registration",
+      error: err.message,
+    });
+  }
+}
+
+export async function loginUser(req: Request, res: Response) {
+  const { username, password } = req.body;
+  try {
+    const { rows } = await db.query("SELECT * FROM users WHERE username = $1", [
+      username,
+    ]);
+    if (rows.length > 0) {
+      const validPassword = await comparePassword(password, rows[0].password);
+      if (validPassword) {
+        const token = generateToken(rows[0].id);
+        res.json({ token: token });
+      } else {
+        res.status(401).json({ message: "Invalid credentials" });
+      }
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (err: any) {
+    res
+      .status(500)
+      .json({ message: "Error occured on logging in", error: err.message });
+  }
+}
