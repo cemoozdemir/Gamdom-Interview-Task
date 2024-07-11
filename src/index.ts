@@ -8,17 +8,15 @@ const app = express();
 
 app.use(express.json());
 
+app.use(ensureBearerToken);
+
+app.use("/api/users", userRoutes);
+
+app.use("/api/betting-slips", authenticate, bettingSlipRoutes);
+
 app.get("/", (req, res) => {
   res.send("Welcome to the Betting Slip API!");
 });
-
-app.use(
-  "/api/betting-slips",
-  ensureBearerToken,
-  authenticate,
-  bettingSlipRoutes
-);
-app.use("/api/users", userRoutes);
 
 app.use(errorHandler);
 

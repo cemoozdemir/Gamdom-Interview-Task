@@ -49,7 +49,7 @@ export async function getBettingSlip(
   const { id: userId } = res.locals.user;
   try {
     const bettingSlip = await BettingSlip.findById(Number(userId));
-    if (!bettingSlip) {
+    if (!bettingSlip || bettingSlip.userId !== userId) {
       res.status(404).json({ message: "Requested Betting Slip not found!" });
       return;
     }
@@ -74,9 +74,7 @@ export async function updateBettingSlip(
   try {
     const bettingSlip = await BettingSlip.findById(Number(id));
     if (!bettingSlip || bettingSlip.userId !== userId) {
-      res
-        .status(403)
-        .json({ message: "You can't update another user's betting slip!" });
+      res.status(404).json({ message: "Betting Slip not found!" });
       return;
     }
 
@@ -103,15 +101,8 @@ export async function deleteBettingSlips(
 
   try {
     const bettingSlip = await BettingSlip.findById(Number(id));
-    if (!bettingSlip) {
+    if (!bettingSlip || bettingSlip.userId !== userId) {
       res.status(404).json({ message: "Betting Slip not found!" });
-      return;
-    }
-
-    if (bettingSlip.userId !== userId) {
-      res
-        .status(403)
-        .json({ message: "You can't delete another user's betting slip!" });
       return;
     }
 
@@ -127,13 +118,18 @@ export async function deleteBettingSlips(
 }
 
 export async function listBettingSlips(
-  req: Request,
+  _req: Request,
   res: Response
 ): Promise<void> {
   const { id: userId } = res.locals.user;
 
   try {
     const bettingSlips = await BettingSlip.findAllByUserId(Number(userId));
+    if (bettingSlips.length === 0) {
+      res.status(404).json({ meesage: "No betting slips found!" });
+      return;
+    }
+
     res.status(200).json(bettingSlips);
   } catch (err) {
     const error = err as DatabaseError;
