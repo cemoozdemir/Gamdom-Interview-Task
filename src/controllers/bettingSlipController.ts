@@ -1,15 +1,20 @@
 import { Request, Response } from "express";
-import db from "../models/database";
 import { DatabaseError } from "../middleware/errorHandler";
+import { BettingSlipInterface } from "../types";
+import BettingSlip from "../models/BettingSlip";
 
 export async function createBettingSlip(
   req: Request,
   res: Response
 ): Promise<void> {
-  const { userId } = req.body; //userId'yi body'e değil res.locals.user
-  const { user_id, event_id, amount, winning_team_id } = req.body; //Type Validation or req.body as
+  const { id: userId } = res.locals.user; //userId'yi body'e değil res.locals.user
+  const { event_id, amount, winning_team_id } = req.body as {
+    event_id: number;
+    amount: number;
+    winning_team_id: number;
+  }; //Type Validation or req.body as
 
-  if (req.body.user_id !== userId) {
+  if (res.locals.user.id !== userId) {
     res.status(403).json({
       message:
         "Access Denied: You can't create betting slips for other user's account!",
@@ -17,13 +22,16 @@ export async function createBettingSlip(
     return;
   }
   try {
-    const { rows } = await db.query<{ user_id: number; event_id: number }>( //!!! Only change this line by using BettingSlip.ts' method
-      "INSERT INTO betting_slips (user_id, event_id, amount, winning_team_id) VALUES ($1, $2, $3, $4) RETURNING *;",
-      [user_id, event_id, amount, winning_team_id]
-    );
+    const bettingSlip: BettingSlipInterface = {
+      userId,
+      eventId: event_id,
+      amount,
+      winningTeamId: winning_team_id,
+    };
+    const createdBettingSlip = await BettingSlip.create(bettingSlip);
     res.status(201).json({
-      message: "Betting Slip Created Successfully!",
-      bettingSlip: rows[0],
+      message: "Betting Slip Created!",
+      bettingSlip: createdBettingSlip,
     });
   } catch (err) {
     const error = err as DatabaseError;
@@ -35,20 +43,17 @@ export async function createBettingSlip(
 }
 
 export async function getBettingSlip(
-  req: Request,
+  _req: Request,
   res: Response
 ): Promise<void> {
-  const { id } = req.params;
+  const { id: userId } = res.locals.user;
   try {
-    const { rows } = await db.query<{ id: number }>(
-      "SELECT * FROM betting_slips WHERE id = $1;",
-      [id]
-    );
-    if (rows.length === 0) {
-      res.status(404).json({ message: "Entered Betting Slip not found!" });
+    const bettingSlip = await BettingSlip.findById(Number(userId));
+    if (!bettingSlip) {
+      res.status(404).json({ message: "Requested Betting Slip not found!" });
       return;
     }
-    res.status(200).json(rows[0]);
+    res.status(200).json(bettingSlip);
   } catch (err) {
     const error = err as DatabaseError;
     res.status(500).json({
@@ -63,36 +68,27 @@ export async function updateBettingSlip(
   res: Response
 ): Promise<void> {
   const { id } = req.params;
-  const { userId, amount } = req.body;
+  const { amount } = req.body as { amount: number };
+  const { id: userId } = res.locals.user;
 
   try {
-    const { rows: existingRows } = await db.query<{
-      id: number;
-      amount: number;
-    }>("SELECT * FROM betting_slips WHERE id = $1 AND user_id = $2", [
-      id,
-      userId,
-    ]);
-    if (existingRows.length === 0) {
+    const bettingSlip = await BettingSlip.findById(Number(id));
+    if (!bettingSlip || bettingSlip.userId !== userId) {
       res
         .status(403)
         .json({ message: "You can't update another user's betting slip!" });
       return;
     }
 
-    const { rows } = await db.query(
-      "UPDATE betting_slips SET amount = $1 WHERE id = $2 RETURNING *;",
-      [amount, id]
-    );
-
+    const updatedBettingSlip = await BettingSlip.update(Number(id), amount);
     res.status(200).json({
-      message: "Betting Slip Update Successfully",
-      bettingSlip: rows[0],
+      message: "Bettin Slip Updated",
+      bettingSlip: updatedBettingSlip,
     });
   } catch (err) {
     const error = err as DatabaseError;
     res.status(500).json({
-      message: "Error occured on updating Betting Slip",
+      message: "An error occured on updating Betting Slip",
       error: error.message,
     });
   }
@@ -103,29 +99,24 @@ export async function deleteBettingSlips(
   res: Response
 ): Promise<void> {
   const { id } = req.params;
-  const { userId } = req.body;
+  const { id: userId } = res.locals.user;
+
   try {
-    const { rows: existingRows } = await db.query(
-      "SELECT * FROM betting_slips WHERE id = $1",
-      [id]
-    );
-    if (existingRows.length === 0) {
+    const bettingSlip = await BettingSlip.findById(Number(id));
+    if (!bettingSlip) {
       res.status(404).json({ message: "Betting Slip not found!" });
       return;
     }
 
-    if (existingRows[0].user_id !== userId) {
+    if (bettingSlip.userId !== userId) {
       res
         .status(403)
         .json({ message: "You can't delete another user's betting slip!" });
       return;
     }
 
-    await db.query<{ id: number }>("DELETE FROM betting_slips WHERE id = $1;", [
-      id,
-    ]);
-
-    res.status(200).json({ message: "Betting Slip Successfully Deleted" });
+    await BettingSlip.delete(Number(id));
+    res.status(200).json({ message: "Betting Slip Deleted Successfully" });
   } catch (err) {
     const error = err as DatabaseError;
     res.status(500).json({
@@ -139,13 +130,11 @@ export async function listBettingSlips(
   req: Request,
   res: Response
 ): Promise<void> {
-  const { userId } = req.params;
+  const { id: userId } = res.locals.user;
+
   try {
-    const rows = await db.query<{ userId: number }>(
-      "SELECT * FROM betting_slips WHERE user_id = $1",
-      [userId]
-    );
-    res.status(200).json(rows);
+    const bettingSlips = await BettingSlip.findAllByUserId(Number(userId));
+    res.status(200).json(bettingSlips);
   } catch (err) {
     const error = err as DatabaseError;
     res.status(500).json({

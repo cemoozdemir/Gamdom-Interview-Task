@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { ResultTokenVerification, verifyToken } from "../utils/auth";
+import { verifyToken } from "../utils/auth";
+import { ResultTokenVerification } from "../types";
 
 export const ensureBearerToken = (
   req: Request,
@@ -33,7 +34,7 @@ const authenticate = (
     return;
   }
 
-  req.body.userId = verificationResult.decoded!.userId;
+  res.locals.user = { id: verificationResult.decoded!.userId };
   next();
 };
 

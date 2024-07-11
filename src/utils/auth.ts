@@ -1,19 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JwtError } from "../middleware/errorHandler";
+import { DecodedToken, ResultTokenVerification } from "../types";
 
 //put these into types.ts file
-export interface DecodedToken {
-  userId: number;
-  iat: number;
-  exp: number;
-}
-
-export interface ResultTokenVerification {
-  valid: boolean;
-  decoded?: DecodedToken;
-  error?: string;
-}
 
 export const hashPassword = async (password: string): Promise<string> => {
   return await bcrypt.hash(password, 10);
