@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import db from "../models/database";
 import { comparePassword, generateToken, hashPassword } from "../utils/auth";
+import { DatabaseError } from "../middleware/errorHandler";
 
 export async function registerUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body;
@@ -11,10 +12,11 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
       hashedPassword,
     ]);
     res.status(201).json({ message: "User successfully registered" });
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as DatabaseError;
     res.status(500).json({
       message: "Error occured on user registration",
-      error: err.message,
+      error: error.message,
     });
   }
 }
@@ -36,9 +38,10 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
     } else {
       res.status(404).json({ message: "User not found" });
     }
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as DatabaseError;
     res
       .status(500)
-      .json({ message: "Error occured on logging in", error: err.message });
+      .json({ message: "Error occured on logging in", error: error.message });
   }
 }

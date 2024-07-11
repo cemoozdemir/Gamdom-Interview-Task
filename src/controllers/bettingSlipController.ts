@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import db from "../models/database";
+import { DatabaseError } from "../middleware/errorHandler";
 
 // import * as messages from "./messages";
 // error type check
@@ -16,10 +17,11 @@ export async function createBettingSlip(req: Request, res: Response) {
       message: "Betting Slip Created Successfully!",
       bettingSlip: rows[0],
     });
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as DatabaseError;
     res.status(500).json({
       message: "Error occured on creation of betting slip",
-      error: err,
+      error: error.message,
     });
   }
 }
@@ -37,10 +39,11 @@ export async function getBettingSlip(req: Request, res: Response) {
         .json({ message: "Entered Betting Slip not found!" });
     }
     res.status(200).json(rows[0]);
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as DatabaseError;
     res.status(500).json({
       message: "Error occured on retrieving betting slip",
-      error: err.message,
+      error: error.message,
     });
   }
 }
@@ -63,10 +66,11 @@ export async function updateBettingSlip(req: Request, res: Response) {
       message: "Betting Slip Update Successfully",
       bettingSlip: rows[0],
     });
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as DatabaseError;
     res.status(500).json({
       message: "Error occured on updating Betting Slip",
-      error: err.message,
+      error: error.message,
     });
   }
 }
@@ -82,10 +86,11 @@ export async function deleteBettingSlips(req: Request, res: Response) {
       return res.status(404).json({ message: "Betting Slip not found!" });
     }
     res.status(200).json({ message: "Betting Slip Successfully Deleted" });
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as DatabaseError;
     res.status(500).json({
       message: "Error occured on deletion of betting slip",
-      error: err.message,
+      error: error.message,
     });
   }
 }
@@ -98,10 +103,11 @@ export async function listBettingSlips(req: Request, res: Response) {
       [userId]
     );
     res.status(200).json(rows);
-  } catch (err: any) {
+  } catch (err) {
+    const error = err as DatabaseError;
     res.status(500).json({
       message: "Error occured on listing of betting slips",
-      error: err.message,
+      error: error.message,
     });
   }
 }

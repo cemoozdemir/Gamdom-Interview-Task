@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { JwtError } from "../middleware/errorHandler";
 
 export interface DecodedToken {
   userId: number;
@@ -32,10 +33,11 @@ export const verifyToken = (token: string): ResultTokenVerification => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
     return { valid: true, decoded };
-  } catch (error: any) {
+  } catch (err) {
+    const jwtError = err as JwtError;
     return {
       valid: false,
-      error: "Token verification failed: " + error.message,
+      error: "Token verification failed: " + jwtError.message,
     };
   }
 };
