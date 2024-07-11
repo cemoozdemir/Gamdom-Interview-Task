@@ -2,12 +2,16 @@ import { Request, Response } from "express";
 import db from "../models/database";
 import { DatabaseError } from "../middleware/errorHandler";
 
-// import * as messages from "./messages";
-// error type check
-// redis kullan
-
 export async function createBettingSlip(req: Request, res: Response) {
+  const { userId } = req.body;
   const { user_id, event_id, amount, winning_team_id } = req.body;
+
+  if (req.body.user_id !== userId) {
+    return res.status(403).json({
+      message:
+        "Access Denied: You can't create betting slips for other user's account!",
+    });
+  }
   try {
     const { rows } = await db.query<{ user_id: number; event_id: number }>( //!!!
       "INSERT INTO betting_slips (user_id, event_id, amount, winning_team_id) VALUES ($1, $2, $3, $4) RETURNING *;",
@@ -50,18 +54,27 @@ export async function getBettingSlip(req: Request, res: Response) {
 
 export async function updateBettingSlip(req: Request, res: Response) {
   const { id } = req.params;
-  const { amount } = req.body;
+  const { userId, amount } = req.body;
 
   try {
-    const { rows } = await db.query<{ id: number; amount: number }>(
+    const { rows: existingRows } = await db.query<{
+      id: number;
+      amount: number;
+    }>("SELECT * FROM betting_slips WHERE id = $1 AND user_id = $2", [
+      id,
+      userId,
+    ]);
+    if (existingRows.length === 0) {
+      return res
+        .status(403)
+        .json({ message: "You can't update another user's betting slip!" });
+    }
+
+    const { rows } = await db.query(
       "UPDATE betting_slips SET amount = $1 WHERE id = $2 RETURNING *;",
       [amount, id]
     );
-    if (rows.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Entered Betting Slip not found!" });
-    }
+
     res.status(200).json({
       message: "Betting Slip Update Successfully",
       bettingSlip: rows[0],
@@ -77,14 +90,26 @@ export async function updateBettingSlip(req: Request, res: Response) {
 
 export async function deleteBettingSlips(req: Request, res: Response) {
   const { id } = req.params;
+  const { userId } = req.body;
   try {
-    const { rowCount } = await db.query<{ id: number }>(
-      "DELETE FROM betting_slips WHERE id = $1;",
+    const { rows: existingRows } = await db.query(
+      "SELECT * FROM betting_slips WHERE id = $1",
       [id]
     );
-    if (rowCount === 0) {
+    if (existingRows.length === 0) {
       return res.status(404).json({ message: "Betting Slip not found!" });
     }
+
+    if (existingRows[0].user_id !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You can't delete another user's betting slip!" });
+    }
+
+    await db.query<{ id: number }>("DELETE FROM betting_slips WHERE id = $1;", [
+      id,
+    ]);
+
     res.status(200).json({ message: "Betting Slip Successfully Deleted" });
   } catch (err) {
     const error = err as DatabaseError;

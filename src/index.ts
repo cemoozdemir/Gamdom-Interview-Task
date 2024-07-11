@@ -2,6 +2,7 @@ import express from "express";
 import bettingSlipRoutes from "./routes/bettingSlipRoutes";
 import userRoutes from "./routes/userRoutes";
 import errorHandler from "./middleware/errorHandler";
+import authenticate, { ensureBearerToken } from "./middleware/authenticate";
 
 const app = express();
 
@@ -11,7 +12,12 @@ app.get("/", (req, res) => {
   res.send("Welcome to the Betting Slip API!");
 });
 
-app.use("/api/betting-slips", bettingSlipRoutes);
+app.use(
+  "/api/betting-slips",
+  ensureBearerToken,
+  authenticate,
+  bettingSlipRoutes
+);
 app.use("/api/users", userRoutes);
 
 app.use(errorHandler);

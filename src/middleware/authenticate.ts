@@ -1,6 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { ResultTokenVerification, verifyToken } from "../utils/auth";
 
+export const ensureBearerToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  let token = req.headers.authorization;
+
+  if (token && !token.startsWith("Bearer ")) {
+    token = `Bearer ${token}`;
+    req.headers.authorization = token;
+  }
+
+  next();
+};
+
 const authenticate = (
   req: Request,
   res: Response,
