@@ -27,7 +27,7 @@ export async function createBettingSlip(req: Request, res: Response) {
 export async function getBettingSlip(req: Request, res: Response) {
   const { id } = req.params;
   try {
-    const { rows } = await db.query(
+    const { rows } = await db.query<{ id: number }>(
       "SELECT * FROM betting_slips WHERE id = $1;",
       [id]
     );
@@ -50,7 +50,7 @@ export async function updateBettingSlip(req: Request, res: Response) {
   const { amount } = req.body;
 
   try {
-    const { rows } = await db.query(
+    const { rows } = await db.query<{ id: number; amount: number }>(
       "UPDATE betting_slips SET amount = $1 WHERE id = $2 RETURNING *;",
       [amount, id]
     );
@@ -74,7 +74,7 @@ export async function updateBettingSlip(req: Request, res: Response) {
 export async function deleteBettingSlips(req: Request, res: Response) {
   const { id } = req.params;
   try {
-    const { rowCount } = await db.query(
+    const { rowCount } = await db.query<{ id: number }>(
       "DELETE FROM betting_slips WHERE id = $1;",
       [id]
     );
@@ -93,7 +93,7 @@ export async function deleteBettingSlips(req: Request, res: Response) {
 export async function listBettingSlips(req: Request, res: Response) {
   const { userId } = req.params;
   try {
-    const rows = await db.query(
+    const rows = await db.query<{ userId: number }>(
       "SELECT * FROM betting_slips WHERE user_id = $1",
       [userId]
     );

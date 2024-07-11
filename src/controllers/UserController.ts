@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import db from "../models/database";
 import { comparePassword, generateToken, hashPassword } from "../utils/auth";
 
-export async function registerUser(req: Request, res: Response) {
+export async function registerUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body;
   try {
     const hashedPassword = await hashPassword(password);
@@ -19,7 +19,7 @@ export async function registerUser(req: Request, res: Response) {
   }
 }
 
-export async function loginUser(req: Request, res: Response) {
+export async function loginUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body;
   try {
     const { rows } = await db.query("SELECT * FROM users WHERE username = $1", [
