@@ -4,13 +4,23 @@ import { comparePassword, generateToken, hashPassword } from "../utils/auth";
 import { DatabaseError } from "../middleware/errorHandler";
 
 export async function registerUser(req: Request, res: Response): Promise<void> {
-  const { username, password } = req.body;
+  const { username, password } = req.body as {
+    username: string;
+    password: string;
+  };
+  if (!username || !password) {
+    res
+      .status(400)
+      .json({ message: "Username and password should be entered!" });
+    return;
+  }
+
   try {
     const hashedPassword = await hashPassword(password);
-    await db.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
-      username,
-      hashedPassword,
-    ]);
+    await db.query<{ id: number }>(
+      "INSERT INTO users (username, password) VALUES ($1, $2)",
+      [username, hashedPassword]
+    );
     res.status(201).json({ message: "User successfully registered" });
   } catch (err) {
     const error = err as DatabaseError;
@@ -22,11 +32,23 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
 }
 //type cast similar at line 16 on bettingSlipController
 export async function loginUser(req: Request, res: Response): Promise<void> {
-  const { username, password } = req.body;
+  const { username, password } = req.body as {
+    username: string;
+    password: string;
+  };
+
+  if (!username || !password) {
+    res
+      .status(400)
+      .json({ message: "Username and password should be entered!" });
+    return;
+  }
+
   try {
-    const { rows } = await db.query("SELECT * FROM users WHERE username = $1", [
-      username,
-    ]);
+    const { rows } = await db.query<{ id: number; password: string }>(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
     if (rows.length > 0) {
       const validPassword = await comparePassword(password, rows[0].password);
       if (validPassword) {

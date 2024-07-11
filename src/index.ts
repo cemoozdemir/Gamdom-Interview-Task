@@ -14,7 +14,7 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/betting-slips", authenticate, bettingSlipRoutes);
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Welcome to the Betting Slip API!");
 });
 
