@@ -9,7 +9,7 @@ export interface JwtError extends Error {
   message: string;
 }
 
-const errorHandler = (err: Error, req: Request, res: Response) => {
+const errorHandler = (err: Error, req: Request, res: Response): void => {
   console.error(err.stack);
   res
     .status(500)

@@ -3,7 +3,7 @@ import { ResultTokenVerification, verifyToken } from "../utils/auth";
 
 export const ensureBearerToken = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   let token = req.headers.authorization;

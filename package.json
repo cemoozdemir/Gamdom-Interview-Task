@@ -5,7 +5,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/index.ts",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "lint": "eslint \"src/**/*.{js,ts}\"",
+    "lint:fix": "eslint \"src/**/*.{js,ts}\" --fix",
+    "lint:debug": "eslint \"src/**/*.{js,ts}\" --debug"
   },
   "keywords": [],
   "author": "Pun",
@@ -28,8 +31,9 @@
     "@eslint/js": "^9.6.0",
     "@types/eslint__js": "^8.42.3",
     "@types/pg": "^8.11.6",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
     "eslint": "^9.6.0",
-    "nodemon": "^3.1.4",
-    "typescript-eslint": "^7.16.0"
+    "nodemon": "^3.1.4"
   }
 }

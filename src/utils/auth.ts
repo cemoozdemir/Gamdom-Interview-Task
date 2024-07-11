@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JwtError } from "../middleware/errorHandler";
 
+//put these into types.ts file
 export interface DecodedToken {
   userId: number;
   iat: number;
