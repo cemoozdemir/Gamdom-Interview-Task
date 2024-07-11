@@ -30,7 +30,7 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
     });
   }
 }
-//type cast similar at line 16 on bettingSlipController
+
 export async function loginUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body as {
     username: string;

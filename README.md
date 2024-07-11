@@ -47,41 +47,19 @@ This is a Betting Slip API built with Node.js, TypeScript, and PostgreSQL. The A
     JWT_SECRET=your_jwt_secret_key(You can add random characters here only on testing environment.)
     ```
 
-4. **Set up PostgreSQL database:**
-
-    Connect to your PostgreSQL database and create the necessary tables:
-
-    ```sql
-    CREATE TABLE users (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL
-    );
-
-    CREATE TABLE betting_slips (
-        id SERIAL PRIMARY KEY,
-        user_id INT NOT NULL,
-        event_id INT NOT NULL,
-        amount DECIMAL NOT NULL,
-        winning_team_id INT NOT NULL,
-        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    );
-    ```
-
-5. **Run database migrations:**
+4. **Run database migrations:**
 
     ```sh
     yarn migrate
     ```
 
-6. **Start the server:**
+5. **Start the server:**
 
     ```sh
     yarn dev
     ```
 
-7. **Test the API endpoints:**
+6. **Test the API endpoints:**
 
     Use Postman to test the API endpoints. Import the provided Postman collection to get started.
 

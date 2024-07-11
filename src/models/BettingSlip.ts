@@ -1,19 +1,15 @@
 import { BettingSlipInterface } from "../types";
 import db from "./database";
 
-//This interface and for the others, create types.ts file to store and use
-
-//type cast these
 class BettingSlip {
   public async create(
-    //bettingSlipController should call this method. Add these.
     bettingSlip: BettingSlipInterface
   ): Promise<BettingSlipInterface> {
-    const { userId, eventId, amount, winningTeamId } = bettingSlip;
+    const { user_id, eventId, amount, winningTeamId } = bettingSlip;
     const query =
       "INSERT INTO betting_slips (user_id, event_id, amount, winning_team_id) VALUES ($1, $2, $3, $4) RETURNING *;";
-    const values = [userId, eventId, amount, winningTeamId];
-    const { rows } = await db.query<BettingSlipInterface>(query, values); //Add type casting.
+    const values = [user_id, eventId, amount, winningTeamId];
+    const { rows } = await db.query<BettingSlipInterface>(query, values);
     return rows[0];
   }
 

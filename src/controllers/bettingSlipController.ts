@@ -7,12 +7,12 @@ export async function createBettingSlip(
   req: Request,
   res: Response
 ): Promise<void> {
-  const { id: userId } = res.locals.user; //userId'yi body'e değil res.locals.user
+  const { id: userId } = res.locals.user;
   const { event_id, amount, winning_team_id } = req.body as {
     event_id: number;
     amount: number;
     winning_team_id: number;
-  }; //Type Validation or req.body as
+  };
 
   if (res.locals.user.id !== userId) {
     res.status(403).json({
@@ -23,7 +23,7 @@ export async function createBettingSlip(
   }
   try {
     const bettingSlip: BettingSlipInterface = {
-      userId,
+      user_id: userId,
       eventId: event_id,
       amount,
       winningTeamId: winning_team_id,
@@ -43,17 +43,19 @@ export async function createBettingSlip(
 }
 
 export async function getBettingSlip(
-  _req: Request,
+  req: Request,
   res: Response
 ): Promise<void> {
   const { id: userId } = res.locals.user;
+  const { id } = req.params;
   try {
-    const bettingSlip = await BettingSlip.findById(Number(userId));
-    if (!bettingSlip || bettingSlip.userId !== userId) {
+    const bettingSlip = await BettingSlip.findById(Number(id));
+    if (!bettingSlip || bettingSlip?.user_id !== Number(userId)) {
       res.status(404).json({ message: "Requested Betting Slip not found!" });
       return;
     }
     res.status(200).json(bettingSlip);
+    return;
   } catch (err) {
     const error = err as DatabaseError;
     res.status(500).json({
@@ -73,7 +75,7 @@ export async function updateBettingSlip(
 
   try {
     const bettingSlip = await BettingSlip.findById(Number(id));
-    if (!bettingSlip || bettingSlip.userId !== userId) {
+    if (!bettingSlip || bettingSlip.user_id !== userId) {
       res.status(404).json({ message: "Betting Slip not found!" });
       return;
     }
@@ -101,7 +103,7 @@ export async function deleteBettingSlips(
 
   try {
     const bettingSlip = await BettingSlip.findById(Number(id));
-    if (!bettingSlip || bettingSlip.userId !== userId) {
+    if (!bettingSlip || bettingSlip.user_id !== userId) {
       res.status(404).json({ message: "Betting Slip not found!" });
       return;
     }
@@ -131,6 +133,7 @@ export async function listBettingSlips(
     }
 
     res.status(200).json(bettingSlips);
+    return;
   } catch (err) {
     const error = err as DatabaseError;
     res.status(500).json({

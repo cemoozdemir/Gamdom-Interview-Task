@@ -29,7 +29,8 @@ router.delete(
   BettingSlipController.deleteBettingSlips
 );
 router.get(
-  "/user/:userId",
+  "/",
+  ensureBearerToken,
   authenticate,
   BettingSlipController.listBettingSlips
 );
