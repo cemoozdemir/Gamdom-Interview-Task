@@ -83,7 +83,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"event_id\": 101,\n  \"amount\": 50,\n  \"winning_team_id\": 500\n}"
+					"raw": "{\n  \"eventId\": 101,\n  \"amount\": 50,\n  \"winningTeamId\": 500\n}"
 				},
 				"url": {
 					"raw": "http://localhost:3000/api/betting-slips",
