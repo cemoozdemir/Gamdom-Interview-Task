@@ -70,7 +70,7 @@ export async function updateBettingSlip(
   res: Response
 ): Promise<void> {
   const { id } = req.params;
-  const { amount } = req.body as { amount: number };
+  const { amount } = req.body as { amount?: number };
   const { id: userId } = res.locals.user;
 
   try {
@@ -80,7 +80,20 @@ export async function updateBettingSlip(
       return;
     }
 
+    if (amount === null || amount === undefined) {
+      res.status(400).json({
+        message: "Amount field is missing",
+      });
+      return;
+    } else if (amount <= 0) {
+      res.status(400).json({
+        message: "Amount parameter can't be 0 or negative value",
+      });
+      return;
+    }
+
     const updatedBettingSlip = await BettingSlip.update(Number(id), amount);
+
     res.status(200).json({
       message: "Bettin Slip Updated",
       bettingSlip: updatedBettingSlip,
