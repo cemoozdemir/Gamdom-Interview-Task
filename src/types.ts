@@ -1,6 +1,6 @@
 export interface BettingSlipInterface {
   id?: number;
-  user_id: number;
+  userId: number;
   eventId: number;
   amount: number;
   winningTeamId: number;

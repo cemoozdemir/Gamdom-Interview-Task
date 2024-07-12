@@ -8,11 +8,17 @@ export async function createBettingSlip(
   res: Response
 ): Promise<void> {
   const { id: userId } = res.locals.user;
-  const { event_id, amount, winning_team_id } = req.body as {
-    event_id: number;
+  const { eventId, amount, winningTeamId } = req.body as {
+    eventId: number;
     amount: number;
-    winning_team_id: number;
+    winningTeamId: number;
   };
+
+  console.log("req.body:", req.body);
+  console.log("userId:", userId);
+  console.log("eventId:", eventId);
+  console.log("amount:", amount);
+  console.log("winningTeamId:", winningTeamId);
 
   if (res.locals.user.id !== userId) {
     res.status(403).json({
@@ -23,11 +29,12 @@ export async function createBettingSlip(
   }
   try {
     const bettingSlip: BettingSlipInterface = {
-      user_id: userId,
-      eventId: event_id,
+      userId,
+      eventId,
       amount,
-      winningTeamId: winning_team_id,
+      winningTeamId,
     };
+    console.log("bettingSlip:", bettingSlip);
     const createdBettingSlip = await BettingSlip.create(bettingSlip);
     res.status(201).json({
       message: "Betting Slip Created!",
@@ -35,6 +42,7 @@ export async function createBettingSlip(
     });
   } catch (err) {
     const error = err as DatabaseError;
+    console.log(error);
     res.status(500).json({
       message: "Error occured on creation of betting slip",
       error: error.message,
@@ -50,7 +58,7 @@ export async function getBettingSlip(
   const { id } = req.params;
   try {
     const bettingSlip = await BettingSlip.findById(Number(id));
-    if (!bettingSlip || bettingSlip?.user_id !== Number(userId)) {
+    if (!bettingSlip || bettingSlip?.userId !== Number(userId)) {
       res.status(404).json({ message: "Requested Betting Slip not found!" });
       return;
     }
@@ -75,7 +83,7 @@ export async function updateBettingSlip(
 
   try {
     const bettingSlip = await BettingSlip.findById(Number(id));
-    if (!bettingSlip || bettingSlip.user_id !== userId) {
+    if (!bettingSlip || bettingSlip.userId !== userId) {
       res.status(404).json({ message: "Betting Slip not found!" });
       return;
     }
@@ -95,7 +103,7 @@ export async function updateBettingSlip(
     const updatedBettingSlip = await BettingSlip.update(Number(id), amount);
 
     res.status(200).json({
-      message: "Bettin Slip Updated",
+      message: "Betting Slip Updated",
       bettingSlip: updatedBettingSlip,
     });
   } catch (err) {
@@ -116,7 +124,7 @@ export async function deleteBettingSlips(
 
   try {
     const bettingSlip = await BettingSlip.findById(Number(id));
-    if (!bettingSlip || bettingSlip.user_id !== userId) {
+    if (!bettingSlip || bettingSlip.userId !== userId) {
       res.status(404).json({ message: "Betting Slip not found!" });
       return;
     }
