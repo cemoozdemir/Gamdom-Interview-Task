@@ -44,10 +44,12 @@ This is a Betting Slip API built with Node.js, TypeScript, and PostgreSQL. The A
     DB_DATABASE=betting
     DB_PASSWORD=your_db_password
     DB_PORT=your_db_port
-    JWT_SECRET=your_jwt_secret_key(You can add random characters here only on testing environment.)
+    JWT_SECRET=your_jwt_secret_key  # Use random characters here, especially in testing environments.
     ```
 
 4. **Run database migrations:**
+
+    This sets up your PostgreSQL database with the necessary tables and relationships.
 
     ```sh
     yarn migrate
@@ -61,7 +63,7 @@ This is a Betting Slip API built with Node.js, TypeScript, and PostgreSQL. The A
 
 6. **Test the API endpoints:**
 
-    Use Postman to test the API endpoints. Import the provided Postman collection to get started.
+    Use Postman or any other API testing tool to verify the API endpoints. Import the provided Postman collection to facilitate testing.
 
 ## API Endpoints
 
@@ -103,9 +105,9 @@ This is a Betting Slip API built with Node.js, TypeScript, and PostgreSQL. The A
   - Request Body:
     ```json
     {
-      "event_id": 101,
+      "eventId": 101,
       "amount": 50,
-      "winning_team_id": 500
+      "winningTeamId": 500
     }
     ```
 
