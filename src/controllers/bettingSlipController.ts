@@ -14,12 +14,6 @@ export async function createBettingSlip(
     winningTeamId: number;
   };
 
-  console.log("req.body:", req.body);
-  console.log("userId:", userId);
-  console.log("eventId:", eventId);
-  console.log("amount:", amount);
-  console.log("winningTeamId:", winningTeamId);
-
   if (res.locals.user.id !== userId) {
     res.status(403).json({
       message:
@@ -34,7 +28,6 @@ export async function createBettingSlip(
       amount,
       winningTeamId,
     };
-    console.log("bettingSlip:", bettingSlip);
     const createdBettingSlip = await BettingSlip.create(bettingSlip);
     res.status(201).json({
       message: "Betting Slip Created!",
@@ -42,7 +35,6 @@ export async function createBettingSlip(
     });
   } catch (err) {
     const error = err as DatabaseError;
-    console.log(error);
     res.status(500).json({
       message: "Error occured on creation of betting slip",
       error: error.message,

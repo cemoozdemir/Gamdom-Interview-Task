@@ -8,7 +8,6 @@ class BettingSlip {
     const { userId, eventId, amount, winningTeamId } = bettingSlip;
     const query = `INSERT INTO betting_slips ("userId", "eventId", "amount", "winningTeamId") VALUES ($1, $2, $3, $4) RETURNING *;`;
     const values = [userId, eventId, amount, winningTeamId];
-    console.log("Values: ", values);
     const { rows } = await db.query<BettingSlipInterface>(query, values);
     return rows[0];
   }
