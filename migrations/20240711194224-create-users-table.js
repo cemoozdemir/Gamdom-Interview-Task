@@ -15,7 +15,7 @@ exports.up = function (db, callback) {
     "betting_slips",
     {
       id: { type: "int", primaryKey: true, autoIncrement: true },
-      user_id: {
+      userId: {
         type: "int",
         notNull: true,
         foreignKey: {
@@ -28,9 +28,9 @@ exports.up = function (db, callback) {
           },
         },
       },
-      event_id: { type: "int", notNull: true },
+      eventId: { type: "int", notNull: true },
       amount: { type: "decimal", notNull: true },
-      winning_team_id: { type: "int", notNull: true },
+      winningTeamId: { type: "int", notNull: true },
       timestamp: {
         type: "timestamp",
         defaultValue: new String("CURRENT_TIMESTAMP"),
